@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block body %}
+{% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+<div class="container  d-flex  justify-content-center">
+    <div
+            class="row align-items-center"
+            style="min-height: 100vh">
+        <div class="col-md-12">
+            <img src="/static/logos/KT_Logo_White_RGB_210208.png" class="img-fluid" alt="Responsive image">
+            <form method="post" class="mb-3">
+                <div class="mb-3">
+                    {% if msg %}
+                    <div class="alert alert-danger" role="alert">
+                        {{msg}}
+                    </div>
+                    {% endif %}
+                    <label for="password" class="form-label">Password<span style="color: #ff0000">*</span>:</label>
+                    <input name="password" type="password" class="form-control" id="password"
+                           aria-describedby="passwordHelp" required>
+                    <div id="longTitleHelp" class="form-text">
+                        The password is required to access.
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

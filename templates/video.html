@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+{% block body %}
+
+{% include "navigation.html" %}
+
+<div class="d-flex justify-content-center">
+
+
+    <div class="row align-items-center">
+        <div class="col-md-12">
+            <div class="mb-3 text-center">
+                {% if video_exists %}
+                <h1>{{ short_title }}</h1>
+                {% else %}
+                <h1>New Video</h1>
+                {% endif %}
+            </div>
+
+            <div id="loading-spinner" style="display: none"></div>
+
+            {% if errors %}
+            <div class="alert alert-danger" role="alert">
+                {{errors}}
+            </div>
+            {% endif %}
+            {% if video_exists %}
+            <div class="alert alert-success" role="alert">
+                Video was generated successfully! You can download it <a
+                    href="{{url_for('download', video_id=video_id)}}"
+                    class="alert-link text-decoration-none">here</a>.
+            </div>
+            {% endif %}
+
+            <form id="videoForm" method="post" action={{url_for('video', video_id=video_id)}}
+                  enctype="multipart/form-data"
+                  class="mb-3">
+                <div class="mb-3">
+                    <label for="longTitle" class="form-label">Long Title<span style="color: #ff0000">*</span>:</label>
+                    <input name="longTitle" type="text" class="form-control" id="longTitle"
+                           aria-describedby="longTitleHelp" value="{{long_title}}" required>
+                    <div id="longTitleHelp" class="form-text">
+                        The long title will be visible on the opening and closing credits.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="shortTitle" class="form-label">Short Title<span style="color: #ff0000">*</span>:</label>
+                    <input name="shortTitle" type="text" class="form-control" id="shortTitle"
+                           aria-describedby="shortTitleHelp" value="{{short_title}}" required>
+                    <div id="shortTitleHelp" class="form-text">This short title is for the YouTube thumbnail.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="subTitle" class="form-label">Subtitle:</label>
+                    <input name="subTitle" type="text" class="form-control" id="subTitle"
+                           aria-describedby="subTitleHelp" value="{{sub_title}}">
+                    <div id="subTitleHelp" class="form-text">
+                        The subtitle can be a longer description below the long title.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="authors" class="form-label">Authors</label>
+                    <input name="authors" type="text" class="form-control" id="authors"
+                           aria-describedby="authorsHelp" value="{{authors}}" required>
+                    <div id="authorsHelp" class="form-text">List the authors with the scheme: Firstname1 Lastname1, ...
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="additionalInformation" class="form-label">Additional information:</label>
+                    <textarea name="additionalInformation" type="text" class="form-control" id="additionalInformation"
+                              aria-describedby="additionalInformationHelp"
+                              rows="3">{{additional_information}}</textarea>
+                    <div id="additionalInformationHelp" class="form-text">
+                        Additional information will be only visible on the closing credits and can be arbitrarily long.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="acknowledgement" class="form-label">Acknowledgement:</label>
+                    <input name="acknowledgement" type="text" class="form-control" id="acknowledgement"
+                           aria-describedby="acknowledgementHelp" value="{{acknowledgement}}">
+                    <div id="acknowledgementHelp" class="form-text">Acknowledgement message.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="formFile" class="form-label">Main video part<span
+                            style="color: #ff0000">*</span>:</label>
+                    <input class="form-control" type="file" id="formFile" name="video" aria-describedby="videoHelp"
+                           required>
+                    <div id="videoHelp" class="form-text">Select the video file for the main part of the video. ['mp4',
+                        'mov',
+                        'avi', 'wmv', 'flv', 'mkv', 'webm']
+                    </div>
+                </div>
+
+                <div class="mb-3 d-flex justify-content-center ">
+
+                    <button type="button" id="submit-button" class="btn btn-secondary text-center w-25 mx-2"
+                            aria-describedby="generateHelp">
+                        Generate Video
+                        <!--<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Loading...-->
+                    </button>
+
+                    <button id="loading-button" class="btn btn-secondary text-center w-25 mx-2" type="button"
+                            style="display: none" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Loading...
+                    </button>
+
+                    {% if video_id is not none and video_exists %}
+                    <a id="download-button" href="{{ url_for('download', video_id=video_id) }}"
+                       class="btn btn-secondary text-center w-25 mx-2">Download
+                        Video</a>
+                    {% else %}
+                    <a id="download-button" href="{{ url_for('download', video_id=video_id) }}"
+                       class="btn btn-secondary text-center w-25 mx-2 disabled">Download
+                        Video</a>
+                    {% endif %}
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    function checkRequiredFields() {
+        // Get the form element
+        const form = document.querySelector('#videoForm');
+
+        // Get all of the required fields in the form
+        const requiredFields = form.querySelectorAll('[required]');
+
+        // Set a flag to track if all required fields are filled
+        let allFieldsFilled = true;
+
+        // Iterate over the required fields
+        requiredFields.forEach(function (field) {
+            // If any of the required fields are empty, set the flag to false
+            if (!field.value) {
+                allFieldsFilled = false;
+            }
+        });
+
+        // Return the flag
+        return allFieldsFilled;
+    }
+
+    document.querySelector('#submit-button').addEventListener('click', function () {
+        if (checkRequiredFields()) {
+            // Show the spinner
+            this.style.display = 'none';
+            document.querySelector('#loading-button').style.display = 'block';
+            document.querySelector('#download-button').classList.add('disabled');
+            //document.getElementById("videoForm").submit();
+        }
+        document.querySelector('#videoForm').requestSubmit();
+    });
+</script>
+
+
+{% endblock %}

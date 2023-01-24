@@ -1,0 +1,10 @@
+# folders
+out/
+.idea/
+uploads/
+postgres-data/
+
+# file endings
+*.pdf
+*.mp4
+*.DS_Store

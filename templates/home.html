@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block body %}
+
+{% include "navigation.html" %}
+<div class="container">
+    <table class="table">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Authors</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Actions</th>
+        </tr>
+        {% for video in videos %}
+        <tr>
+            <th scope="row">{{ video.video_id }}</th>
+            <td>{{ video.short_title }}</td>
+            <td>{{ video.authors }}</td>
+            <td>{{ video.created_at }}</td>
+
+            <td><a class="me-3 text-decoration-none" href="{{ url_for('video', video_id=video.video_id) }}">Edit</a>
+                {% if video.generated %}
+                <a class="text-decoration-none" href="{{ url_for('download', video_id=video.video_id) }}">Download</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+{% endblock %}
